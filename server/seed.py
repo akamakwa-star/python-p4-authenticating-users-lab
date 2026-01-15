@@ -1,55 +1,28 @@
-#!/usr/bin/env python3
 
-from random import randint
+from app import create_app
+from models import db, User, Article
 
-from faker import Faker
-
-from app import app
-from models import db, Article, User
-
-fake = Faker()
+app = create_app()
 
 with app.app_context():
+    db.create_all()
 
-    print("Deleting all records...")
-    Article.query.delete()
-    User.query.delete()
+    if not User.query.first():
+        user = User(username="testuser")
+        db.session.add(user)
+        db.session.commit()
 
-    fake = Faker()
-
-    print("Creating users...")
-    users = []
-    usernames = []
-    for i in range(25):
-
-        username = fake.first_name()
-        while username in usernames:
-            username = fake.first_name()
-        
-        usernames.append(username)
-
-        user = User(username=username)
-        users.append(user)
-
-    db.session.add_all(users)
-
-    print("Creating articles...")
-    articles = []
-    for i in range(100):
-        content = fake.paragraph(nb_sentences=8)
-        preview = content[:25] + '...'
-        
+    if not Article.query.first():
         article = Article(
-            author=fake.name(),
-            title=fake.sentence(),
-            content=content,
-            preview=preview,
-            minutes_to_read=randint(1,20),
+            author="testuser",
+            title="Member Only Article",
+            content="This is a member-only article.",
+            preview="Preview text",
+            minutes_to_read=5,
+            is_member_only=True,
+            user_id=User.query.first().id
         )
+        db.session.add(article)
+        db.session.commit()
 
-        articles.append(article)
-
-    db.session.add_all(articles)
-    
-    db.session.commit()
-    print("Complete.")
+    print("Database seeded with 1 user and 1 member-only article.")

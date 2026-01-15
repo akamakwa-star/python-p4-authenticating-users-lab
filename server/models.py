@@ -8,22 +8,6 @@ metadata = MetaData(naming_convention={
 
 db = SQLAlchemy(metadata=metadata)
 
-class Article(db.Model, SerializerMixin):
-    __tablename__ = 'articles'
-
-    id = db.Column(db.Integer, primary_key=True)
-    author = db.Column(db.String)
-    title = db.Column(db.String)
-    content = db.Column(db.String)
-    preview = db.Column(db.String)
-    minutes_to_read = db.Column(db.Integer)
-    date = db.Column(db.DateTime, server_default=db.func.now())
-
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-
-    def __repr__(self):
-        return f'Article {self.id} by {self.author}'
-
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
@@ -34,3 +18,19 @@ class User(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'User {self.username}, ID {self.id}'
+
+class Article(db.Model, SerializerMixin):
+    __tablename__ = 'articles'
+
+    id = db.Column(db.Integer, primary_key=True)
+    author = db.Column(db.String)
+    title = db.Column(db.String)
+    content = db.Column(db.String)
+    preview = db.Column(db.String)
+    minutes_to_read = db.Column(db.Integer)
+    is_member_only = db.Column(db.Boolean, default=False)
+    date = db.Column(db.DateTime, server_default=db.func.now())
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __repr__(self):
+        return f'Article {self.id} by {self.author}'
